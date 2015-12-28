@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">mm</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string-array name="planets">
+        <item>Songs</item>
+        <item>Album</item>
+        <item>Artist</item>
+        <item>Playlist</item>
+
+    </string-array>
+</resources>
