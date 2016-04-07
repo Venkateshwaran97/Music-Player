@@ -1,6 +1,7 @@
 package com.example.venkateshwaran.mm;
 
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,6 +11,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 
@@ -59,8 +61,7 @@ import android.widget.Toast;
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener {
-    //media player
-   // private  static final String SD_PATH=new String("/storage/emulated/0/audios/");
+
     private MediaPlayer player;
     private String songTitle="";
     private static final int NOTIFY_ID=1;
@@ -75,7 +76,6 @@ public class MusicService extends Service implements
 
         super.onCreate();
         songPosn=0;
-        Log.e("","fffffffff");
 
         player = new MediaPlayer();
         initMusicPlayer();
@@ -86,7 +86,6 @@ public class MusicService extends Service implements
     }
     public void setList(ArrayList<song> theSongs){
         songs=  theSongs;
-        Log.e("","eeeeeeeeeee");
     }
     public class MusicBinder extends Binder {
         MusicService getService() {
@@ -107,11 +106,11 @@ public class MusicService extends Service implements
     }
     @Override
     public boolean onUnbind(Intent intent){
-      //  player.stop();
-        //player.release();
-    //   nm.cancel(NOTIFY_ID);
+        player.stop();
+        player.release();
+     nm.cancel(NOTIFY_ID);
         onDestroy();
-        //stopSelf();
+        stopSelf();
         return false;
     }
 
@@ -121,14 +120,14 @@ public class MusicService extends Service implements
         return false;
     }
 
+
+
     public void playSong() throws IOException {
 
         player.reset();
         song playSong = songs.get(songPosn);
         songTitle=playSong.getTitle();
-//get id
         long currSong = playSong.getID();
-//set uri
         Uri trackUri = ContentUris.withAppendedId(
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 currSong);
@@ -154,31 +153,41 @@ public class MusicService extends Service implements
         }
     }
 
+    public class ConnectDialog extends Activity {
 
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+              playNext();
+
+        }
+    }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
 mp.start();
-
-
+        Intent Intent = new Intent(this, MainActivity.class);
+       Intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, (int)System.currentTimeMillis(),
+                Intent, PendingIntent.FLAG_UPDATE_CURRENT);
+       Intent pla = new Intent(this, ConnectDialog.class);
+      PendingIntent pl =pendingIntent.getActivity(this,0,pla,0);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 
 
-                builder.setSmallIcon(R.drawable.play);
+       builder.setSmallIcon(R.drawable.play);
        builder.setTicker(songTitle);
-        builder.setOngoing(true);
+        //builder.addAction(R.drawable.play,"play",pl);
+  builder.setOngoing(true);
         builder.setContentTitle("Playing");
         builder.setContentText(songTitle);
         builder.setWhen(System.currentTimeMillis());
-        Intent Intent = new Intent(this, MainActivity.class);
-        Intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-                Intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         builder.setContentIntent(pendingIntent);
 
          nm=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-      //  nm.notify(NOTIFY_ID,builder.build());
-         // startForeground(NOTIFY_ID, builder.build());
+        nm.notify(NOTIFY_ID,builder.build());
     }
     public void setSong(int songIndex){
         songPosn=songIndex;

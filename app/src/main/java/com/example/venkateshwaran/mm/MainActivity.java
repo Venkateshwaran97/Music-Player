@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -81,6 +82,7 @@ public class MainActivity extends Activity  implements  AdapterView.OnItemClickL
     private TextView tx1,tx2,tx3;
     private boolean musicBound=false;
     int i=2;
+    public int t=0;
     private boolean paused=false;
     private  static final String SD_PATH=new String("/storage/emulated/0/audios/");
     private ArrayList<song> songs=new ArrayList<song>();
@@ -95,7 +97,6 @@ public class MainActivity extends Activity  implements  AdapterView.OnItemClickL
     protected void onPause() {
         super.onPause();
         paused=true;
-        //mediaPlayer.pausePlayer();
     }
     @Override
     protected void onResume(){
@@ -109,8 +110,6 @@ public class MainActivity extends Activity  implements  AdapterView.OnItemClickL
     protected void onStop() {
 
         super.onStop();
-       // myHandler.removeCallbacks(UpdateSongTime);
-       // unbindService(musicConnection);
     }
     @Override
     protected void onDestroy() {
@@ -124,58 +123,139 @@ public class MainActivity extends Activity  implements  AdapterView.OnItemClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        l=(ListView) findViewById(R.id.list);
-        l.setOnItemClickListener(this);
-        updateplaylist();
-        drawerLayout=(DrawerLayout)findViewById(R.id.drawer_layout);
-        ListView  listView=(ListView) findViewById(R.id.drawerList);
-        planets=getResources().getStringArray(R.array.planets);
-        listView.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,planets));
-       // listView.setOnItemClickListener(this);
+        t++;
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        b1 = (Button) findViewById(R.id.button);
+        if(savedInstanceState==null) {
+            l = (ListView) findViewById(R.id.list);
+            l.setOnItemClickListener(this);
+            updateplaylist();
+            drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+            ListView listView = (ListView) findViewById(R.id.drawerList);
+            planets = getResources().getStringArray(R.array.planets);
+            listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, planets));
+            // listView.setOnItemClickListener(this);
 
-        b3=(Button)findViewById(R.id.button3);
-        b4=(Button)findViewById(R.id.button4);
+            b1 = (Button) findViewById(R.id.button);
 
-
-        tx1=(TextView)findViewById(R.id.textView2);
-        tx2=(TextView)findViewById(R.id.textView3);
-
-        tx3=(TextView)findViewById(R.id.textView4);
+            b3 = (Button) findViewById(R.id.button3);
+            b4 = (Button) findViewById(R.id.button4);
 
 
-        //   getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
-        //     ActionBar actionBar = getActionBar();
-        //   actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#800000")));
-        // actionBar.setStackedBackgroundDrawable(new ColorDrawable(Color.parseColor("#800000")));
+            tx1 = (TextView) findViewById(R.id.textView2);
+            tx2 = (TextView) findViewById(R.id.textView3);
+
+            tx3 = (TextView) findViewById(R.id.textView4);
 
 
-        //mediaPlayer=mediaPlayer.create(this,R.raw.song);
+            //   getWindow().requestFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
+            //     ActionBar actionBar = getActionBar();
+            //   actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#800000")));
+            // actionBar.setStackedBackgroundDrawable(new ColorDrawable(Color.parseColor("#800000")));
 
 
 
-        seekbar=(SeekBar)findViewById(R.id.seekBar);
-        seekbar.setClickable(false);
 
-        b3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (i % 2 == 0) {
+            seekbar = (SeekBar) findViewById(R.id.seekBar);
+            seekbar.setClickable(false);
+        }
+
+            b3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (i % 2 == 0) {
 
                         mediaPlayer.go();
 
+                        b3.setText("||");
+                        seekbar.setClickable(true);
+
+                        finalTime = mediaPlayer.getDur();
+                        startTime = mediaPlayer.getPosn();
+
+                        if (oneTimeOnly == 0) {
+                            seekbar.setMax((int) finalTime);
+                            oneTimeOnly = 1;
+                        }
+                        tx2.setText(String.format("%d min,%d sec",
+                                        TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+                                        TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
+                                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)))
+                        );
+
+                        tx1.setText(String.format("      %d min %d sec",
+                                        TimeUnit.MILLISECONDS.toMinutes((long) startTime),
+                                        TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
+                                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)))
+                        );
+
+                        seekbar.setProgress((int) startTime);
+                        myHandler.postDelayed(UpdateSongTime, 100);
+                        seekbar.setProgress((int) startTime);
+                        i++;
+
+                    } else {
+                        mediaPlayer.pausePlayer();
+                        b3.setText(">");
+                        i++;
+
+                    }
+                }
+            });
+
+
+            seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+
+                }
+
+                @Override
+
+                public void onProgressChanged(SeekBar seekBar, int progress,
+                                              boolean fromUser) {
+                    try {
+                        if (mediaPlayer.isPng() || mediaPlayer != null) {
+                            if (fromUser)
+
+                            {
+                                mediaPlayer.seek(progress);
+
+
+                            }
+                        } else if (mediaPlayer == null) {
+                            Toast.makeText(getApplicationContext(), "Media is not running",
+                                    Toast.LENGTH_SHORT).show();
+                            seekBar.setProgress(0);
+                        }
+                    } catch (Exception e) {
+
+                        seekBar.setEnabled(false);
+
+                    }
+                }
+            });
+            b1.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mediaPlayer.playNext();
+
                     b3.setText("||");
-                    seekbar.setClickable(true);
 
                     finalTime = mediaPlayer.getDur();
                     startTime = mediaPlayer.getPosn();
 
-                    if (oneTimeOnly == 0) {
-                        seekbar.setMax((int) finalTime);
-                        oneTimeOnly = 1;
-                    }
+
+                    seekbar.setMax((int) finalTime);
+
+
                     tx2.setText(String.format("%d min,%d sec",
                                     TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
                                     TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
@@ -191,124 +271,47 @@ public class MainActivity extends Activity  implements  AdapterView.OnItemClickL
                     seekbar.setProgress((int) startTime);
                     myHandler.postDelayed(UpdateSongTime, 100);
                     seekbar.setProgress((int) startTime);
-                    i++;
 
-                } else {
-                    mediaPlayer.pausePlayer();
-                    b3.setText(">");
-                    i++;
 
                 }
-            }
-        });
+            });
+
+            b4.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mediaPlayer.playPrev();
+                    b3.setText("||");
+                    b3.setTextSize(55);
 
 
-
-        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+                    finalTime = mediaPlayer.getDur();
+                    startTime = mediaPlayer.getPosn();
 
 
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+                    seekbar.setMax((int) finalTime);
 
 
-            }
+                    tx2.setText(String.format("%d min,%d sec",
+                                    TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+                                    TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
+                                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)))
+                    );
 
-            @Override
+                    tx1.setText(String.format("      %d min %d sec",
+                                    TimeUnit.MILLISECONDS.toMinutes((long) startTime),
+                                    TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
+                                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)))
+                    );
 
-            public void onProgressChanged(SeekBar seekBar, int progress,
-                                          boolean fromUser) {
-                try {
-                    if (mediaPlayer.isPng() || mediaPlayer != null) {
-                        if (fromUser)
-
-                        { mediaPlayer.seek(progress);
-
-
-                        }
-                    } else if (mediaPlayer == null) {
-                        Toast.makeText(getApplicationContext(), "Media is not running",
-                                Toast.LENGTH_SHORT).show();
-                        seekBar.setProgress(0);
-                    }
-                } catch (Exception e) {
-
-                    seekBar.setEnabled(false);
+                    seekbar.setProgress((int) startTime);
+                    myHandler.postDelayed(UpdateSongTime, 100);
+                    seekbar.setProgress((int) startTime);
 
                 }
-            }
-        });
-        b1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mediaPlayer.playNext();
-
-                b3.setText("||");
-
-                finalTime = mediaPlayer.getDur();
-                startTime = mediaPlayer.getPosn();
+            });
 
 
-                seekbar.setMax((int) finalTime);
 
-
-                tx2.setText(String.format("%d min,%d sec",
-                                TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-                                TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
-                                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)))
-                );
-
-                tx1.setText(String.format("      %d min %d sec",
-                                TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                                TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
-                                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)))
-                );
-
-                seekbar.setProgress((int) startTime);
-                myHandler.postDelayed(UpdateSongTime, 100);
-                seekbar.setProgress((int) startTime);
-
-
-            }
-        });
-
-        b4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mediaPlayer.playPrev();
-                b3.setText("||");
-                b3.setTextSize(55);
-
-
-                finalTime = mediaPlayer.getDur();
-                startTime = mediaPlayer.getPosn();
-
-
-                seekbar.setMax((int) finalTime);
-
-
-                tx2.setText(String.format("%d min,%d sec",
-                                TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-                                TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
-                                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)))
-                );
-
-                tx1.setText(String.format("      %d min %d sec",
-                                TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                                TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
-                                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)))
-                );
-
-                seekbar.setProgress((int) startTime);
-                myHandler.postDelayed(UpdateSongTime, 100);
-                seekbar.setProgress((int) startTime);
-
-            }
-        });
     }
 
     private Runnable UpdateSongTime = new Runnable() {
@@ -346,7 +349,18 @@ public class MainActivity extends Activity  implements  AdapterView.OnItemClickL
         }
     };
 
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
 
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0)
+        {
+
+            this.moveTaskToBack(true);
+            return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
 
     public void updateplaylist()
 
@@ -427,10 +441,38 @@ public class MainActivity extends Activity  implements  AdapterView.OnItemClickL
             seekbar.setProgress((int) startTime);
 
         }
+        if(t>1)
+        {Toast toast =Toast.makeText(getApplicationContext(),"t==1",Toast.LENGTH_SHORT);
+            toast.show();
+            finalTime = mediaPlayer.getDur();
+            startTime = mediaPlayer.getPosn();
+
+
+            seekbar.setMax((int) finalTime);
+
+
+            tx2.setText(String.format("%d min,%d sec",
+                            TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+                            TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
+                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)))
+            );
+
+            tx1.setText(String.format("      %d min %d sec",
+                            TimeUnit.MILLISECONDS.toMinutes((long) startTime),
+                            TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
+                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)))
+            );
+
+            seekbar.setProgress((int) startTime);
+            myHandler.postDelayed(UpdateSongTime, 100);
+            seekbar.setProgress((int) startTime);
+
+        }
+
     }
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-       // mediaPlayer.setSong(position);
+
 
         mediaPlayer.setSong(Integer.parseInt(view.getTag().toString()));
         b3.setText("||");
@@ -465,19 +507,14 @@ public class MainActivity extends Activity  implements  AdapterView.OnItemClickL
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
