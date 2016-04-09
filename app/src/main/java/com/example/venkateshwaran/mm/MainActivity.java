@@ -169,28 +169,13 @@ public class MainActivity extends Activity  implements  AdapterView.OnItemClickL
                         b3.setText("||");
                         seekbar.setClickable(true);
 
-                        finalTime = mediaPlayer.getDur();
-                        startTime = mediaPlayer.getPosn();
 
                         if (oneTimeOnly == 0) {
                             seekbar.setMax((int) finalTime);
                             oneTimeOnly = 1;
                         }
-                        tx2.setText(String.format("%d min,%d sec",
-                                        TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-                                        TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
-                                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)))
-                        );
+                        setup();
 
-                        tx1.setText(String.format("      %d min %d sec",
-                                        TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                                        TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
-                                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)))
-                        );
-
-                        seekbar.setProgress((int) startTime);
-                        myHandler.postDelayed(UpdateSongTime, 100);
-                        seekbar.setProgress((int) startTime);
                         i++;
 
                     } else {
@@ -249,28 +234,7 @@ public class MainActivity extends Activity  implements  AdapterView.OnItemClickL
 
                     b3.setText("||");
 
-                    finalTime = mediaPlayer.getDur();
-                    startTime = mediaPlayer.getPosn();
-
-
-                    seekbar.setMax((int) finalTime);
-
-
-                    tx2.setText(String.format("%d min,%d sec",
-                                    TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-                                    TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
-                                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)))
-                    );
-
-                    tx1.setText(String.format("      %d min %d sec",
-                                    TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                                    TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
-                                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)))
-                    );
-
-                    seekbar.setProgress((int) startTime);
-                    myHandler.postDelayed(UpdateSongTime, 100);
-                    seekbar.setProgress((int) startTime);
+                    setup();
 
 
                 }
@@ -282,30 +246,7 @@ public class MainActivity extends Activity  implements  AdapterView.OnItemClickL
                     mediaPlayer.playPrev();
                     b3.setText("||");
                     b3.setTextSize(55);
-
-
-                    finalTime = mediaPlayer.getDur();
-                    startTime = mediaPlayer.getPosn();
-
-
-                    seekbar.setMax((int) finalTime);
-
-
-                    tx2.setText(String.format("%d min,%d sec",
-                                    TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-                                    TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
-                                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)))
-                    );
-
-                    tx1.setText(String.format("      %d min %d sec",
-                                    TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                                    TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
-                                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)))
-                    );
-
-                    seekbar.setProgress((int) startTime);
-                    myHandler.postDelayed(UpdateSongTime, 100);
-                    seekbar.setProgress((int) startTime);
+                    setup();
 
                 }
             });
@@ -417,57 +358,10 @@ public class MainActivity extends Activity  implements  AdapterView.OnItemClickL
             startService(playIntent);
         }
         else {
-            finalTime = mediaPlayer.getDur();
-            startTime = mediaPlayer.getPosn();
-
-
-            seekbar.setMax((int) finalTime);
-
-
-            tx2.setText(String.format("%d min,%d sec",
-                            TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-                            TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
-                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)))
-            );
-
-            tx1.setText(String.format("      %d min %d sec",
-                            TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                            TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
-                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)))
-            );
-
-            seekbar.setProgress((int) startTime);
-            myHandler.postDelayed(UpdateSongTime, 100);
-            seekbar.setProgress((int) startTime);
+            setup();
 
         }
-        if(t>1)
-        {Toast toast =Toast.makeText(getApplicationContext(),"t==1",Toast.LENGTH_SHORT);
-            toast.show();
-            finalTime = mediaPlayer.getDur();
-            startTime = mediaPlayer.getPosn();
 
-
-            seekbar.setMax((int) finalTime);
-
-
-            tx2.setText(String.format("%d min,%d sec",
-                            TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-                            TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
-                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)))
-            );
-
-            tx1.setText(String.format("      %d min %d sec",
-                            TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                            TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
-                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)))
-            );
-
-            seekbar.setProgress((int) startTime);
-            myHandler.postDelayed(UpdateSongTime, 100);
-            seekbar.setProgress((int) startTime);
-
-        }
 
     }
     @Override
@@ -476,34 +370,37 @@ public class MainActivity extends Activity  implements  AdapterView.OnItemClickL
 
         mediaPlayer.setSong(Integer.parseInt(view.getTag().toString()));
         b3.setText("||");
+        setup();
 
-        finalTime = mediaPlayer.getDur();
-        startTime = mediaPlayer.getPosn();
-
-
-        seekbar.setMax((int) finalTime);
-
-
-        tx2.setText(String.format("%d min,%d sec",
-                        TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-                        TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
-                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)))
-        );
-
-        tx1.setText(String.format("      %d min %d sec",
-                        TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                        TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
-                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)))
-        );
-
-        seekbar.setProgress((int) startTime);
-        myHandler.postDelayed(UpdateSongTime, 100);
-        seekbar.setProgress((int) startTime);
 
 
 
     }
+  public void setup()
+  {
+      finalTime = mediaPlayer.getDur();
+      startTime = mediaPlayer.getPosn();
 
+
+      seekbar.setMax((int) finalTime);
+
+
+      tx2.setText(String.format("%d min,%d sec",
+                      TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
+                      TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
+                              TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime)))
+      );
+
+      tx1.setText(String.format("      %d min %d sec",
+                      TimeUnit.MILLISECONDS.toMinutes((long) startTime),
+                      TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
+                              TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) startTime)))
+      );
+
+      seekbar.setProgress((int) startTime);
+      myHandler.postDelayed(UpdateSongTime, 100);
+      seekbar.setProgress((int) startTime);
+  }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
