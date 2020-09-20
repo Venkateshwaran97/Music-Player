@@ -1,7 +1,7 @@
- Android Music Player
+Android Music Player
  
-Small and Efficient
-Supports all basic playback controls
+1.Small and Efficient
+2.Supports all basic playback controls
 
 
  
