@@ -1,1 +1,7 @@
-                                       https://drive.google.com/open?id=0B5NXMaizcN-FY3prSHdjQ3ZGSFU
+ Android Music Player
+ 
+Small and Efficient
+Supports all basic playback controls
+
+
+ 
